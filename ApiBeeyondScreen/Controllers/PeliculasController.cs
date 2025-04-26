@@ -1,4 +1,5 @@
 ﻿using ApiBeeyondScreen.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NugetBeeyondScreen.Models;
@@ -37,6 +38,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // POST: api/Peliculas
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Pelicula>> CreatePelicula(Pelicula pelicula)
         {
@@ -48,6 +50,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // PUT: api/Peliculas/5
+        [Authorize]
         [HttpPut("{idPelicula}")]
         public async Task<IActionResult> UpdatePelicula(int idPelicula, Pelicula pelicula)
         {
@@ -64,6 +67,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // DELETE: api/Peliculas/5
+        [Authorize]
         [HttpDelete("{idPelicula}")]
         public async Task<IActionResult> DeletePelicula(int idPelicula)
         {

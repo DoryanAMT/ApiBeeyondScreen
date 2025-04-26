@@ -1,4 +1,5 @@
 ﻿using ApiBeeyondScreen.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NugetBeeyondScreen.Models;
@@ -40,6 +41,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // POST: api/Asientos
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Asiento>> CreateAsiento(Asiento asiento)
         {
@@ -56,6 +58,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // PUT: api/Asientos/5
+        [Authorize]
         [HttpPut("{idAsiento}")]
         public async Task<IActionResult> UpdateAsiento(int idAsiento, Asiento asiento)
         {
@@ -77,6 +80,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // DELETE: api/Asientos/5
+        [Authorize]
         [HttpDelete("{idAsiento}")]
         public async Task<IActionResult> DeleteAsiento(int idAsiento)
         {

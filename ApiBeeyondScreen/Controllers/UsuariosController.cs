@@ -21,6 +21,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // GET: api/Usuarios
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
@@ -29,6 +30,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // GET: api/Usuarios/5
+        [Authorize]
         [HttpGet("{idUsuario}")]
         public async Task<ActionResult<Usuario>> GetUsuario(int idUsuario)
         {
