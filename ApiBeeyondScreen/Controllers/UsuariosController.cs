@@ -1,0 +1,170 @@
+﻿using ApiBeeyondScreen.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using NugetBeeyondScreen.Helpers;
+using NugetBeeyondScreen.Models;
+using System.Security.Claims;
+
+namespace ApiBeeyondScreen.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsuariosController : ControllerBase
+    {
+        private readonly IRepositoryCine repo;
+
+        public UsuariosController(IRepositoryCine repo)
+        {
+            this.repo = repo;
+        }
+
+        // GET: api/Usuarios
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        {
+            List<Usuario> usuarios = await this.repo.GetUsuariosAsync();
+            return Ok(usuarios);
+        }
+
+        // GET: api/Usuarios/5
+        [HttpGet("{idUsuario}")]
+        public async Task<ActionResult<Usuario>> GetUsuario(int idUsuario)
+        {
+            Usuario usuario = await this.repo.FindUsuarioAsync(idUsuario);
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+            return Ok(usuario);
+        }
+
+        // GET: api/Usuarios/Perfil
+        [Authorize]
+        [HttpGet("Perfil")]
+        public async Task<ActionResult<Usuario>> GetPerfil()
+        {
+            Claim claim = HttpContext.User.FindFirst
+                (z => z.Type == "UserData");
+            string json = claim.Value;
+            Usuario usuario = JsonConvert
+                .DeserializeObject<Usuario>(json);
+            return await
+                this.repo.FindUsuarioAsync(usuario.IdUsuario);
+
+        }
+
+        // PUT: api/Usuarios/Perfil
+        [Authorize]
+        [HttpPut("Perfil")]
+        public async Task<ActionResult> UpdatePerfil(Usuario usuario, string currentPassword, string newPassword, string confirmPassword, bool cambiarPassword)
+        {
+            try
+            {
+                int idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                Usuario usuarioActual = await this.repo.FindUsuarioAsync(idUsuario);
+
+                if (usuarioActual == null)
+                {
+                    return NotFound(new { error = "Usuario no encontrado" });
+                }
+
+                // Si se solicitó cambiar la contraseña
+                if (cambiarPassword)
+                {
+                    // Verificar la contraseña actual
+                    byte[] passActual = HelperCriptography.EncryptPassword(currentPassword, usuarioActual.Salt);
+                    bool passCorrecta = HelperCriptography.CompararArrays(passActual, usuarioActual.Pass);
+                    if (!passCorrecta)
+                    {
+                        return BadRequest(new { error = "La contraseña actual es incorrecta" });
+                    }
+
+                    // Verificar que las nuevas contraseñas coincidan
+                    if (newPassword != confirmPassword)
+                    {
+                        return BadRequest(new { error = "Las nuevas contraseñas no coinciden" });
+                    }
+
+                    // Actualizar el usuario con la nueva contraseña
+                    await this.repo.UpdateUsuarioAsync(
+                        idUsuario,
+                        usuario.Nombre,
+                        usuario.Email,
+                        usuario.Imagen,
+                        newPassword
+                    );
+                }
+                else
+                {
+                    // Actualizar el usuario sin cambiar la contraseña
+                    await this.repo.UpdateUsuarioProfileAsync(
+                        idUsuario,
+                        usuario.Nombre,
+                        usuario.Email,
+                        usuario.Imagen
+                    );
+                }
+
+                return Ok(new { mensaje = "Perfil actualizado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error al actualizar el perfil: " + ex.Message });
+            }
+        }
+
+        // POST: api/Usuarios/Register
+        [HttpPost("Register")]
+        public async Task<ActionResult> Register(string nombre, string email, string imagen, string password)
+        {
+            try
+            {
+                await this.repo.RegisterUserAsync(nombre, email, password, imagen);
+                return CreatedAtAction(nameof(GetUsuarios), new { mensaje = "Usuario registrado correctamente" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "Error al registrar usuario: " + ex.Message });
+            }
+        }
+
+        // GET: api/Usuarios/Boletos
+        [Authorize]
+        [HttpGet("Boletos")]
+        public async Task<ActionResult<IEnumerable<ViewFacturaBoleto>>> GetBoletosUser()
+        {
+            try
+            {
+                int idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                List<ViewFacturaBoleto> viewFacturaBoletos = await this.repo.GetFacturasBoletoUserAsync(idUsuario);
+                return Ok(viewFacturaBoletos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        // GET: api/Usuarios/Boletos/5
+        [Authorize]
+        [HttpGet("Boletos/{idBoletoUser}")]
+        public async Task<ActionResult<ViewFacturaBoleto>> GetDetailsBoletoUser(int idBoletoUser)
+        {
+            try
+            {
+                ViewFacturaBoleto viewFacturaBoleto = await this.repo.GetFacturaBoletoUserAsync(idBoletoUser);
+                if (viewFacturaBoleto == null)
+                {
+                    return NotFound();
+                }
+                return Ok(viewFacturaBoleto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+    }
+}

@@ -1,0 +1,6 @@
+@ApiBeeyondScreen_HostAddress = http://localhost:5077
+
+GET {{ApiBeeyondScreen_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
