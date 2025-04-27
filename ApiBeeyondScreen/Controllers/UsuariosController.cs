@@ -1,4 +1,6 @@
-﻿using ApiBeeyondScreen.Repositories;
+﻿using ApiBeeyondScreen.Helpers;
+using ApiBeeyondScreen.Models;
+using ApiBeeyondScreen.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +15,15 @@ namespace ApiBeeyondScreen.Controllers
     [ApiController]
     public class UsuariosController : ControllerBase
     {
-        private readonly IRepositoryCine repo;
+        private IRepositoryCine repo;
+        private HelperUsuarioToken helperUsuario; 
 
-        public UsuariosController(IRepositoryCine repo)
+        public UsuariosController(
+            IRepositoryCine repo, 
+            HelperUsuarioToken helperUsuario)
         {
             this.repo = repo;
+            this.helperUsuario = helperUsuario;
         }
 
         // GET: api/Usuarios
@@ -47,11 +53,8 @@ namespace ApiBeeyondScreen.Controllers
         [HttpGet("Perfil")]
         public async Task<ActionResult<Usuario>> GetPerfil()
         {
-            Claim claim = HttpContext.User.FindFirst
-                (z => z.Type == "UserData");
-            string json = claim.Value;
-            Usuario usuario = JsonConvert
-                .DeserializeObject<Usuario>(json);
+            Usuario usuario = this.helperUsuario.GetUsuario();
+            int idUsuario = usuario.IdUsuario;
             return await
                 this.repo.FindUsuarioAsync(usuario.IdUsuario);
 
@@ -60,11 +63,12 @@ namespace ApiBeeyondScreen.Controllers
         // PUT: api/Usuarios/Perfil
         [Authorize]
         [HttpPut("Perfil")]
-        public async Task<ActionResult> UpdatePerfil(Usuario usuario, string currentPassword, string newPassword, string confirmPassword, bool cambiarPassword)
+        public async Task<ActionResult> UpdatePerfil(UsuarioModel usuario, string currentPassword, string newPassword, string confirmPassword, bool cambiarPassword)
         {
             try
             {
-                int idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                Usuario usuarioRegistrado = this.helperUsuario.GetUsuario();
+                int idUsuario = usuarioRegistrado.IdUsuario;
                 Usuario usuarioActual = await this.repo.FindUsuarioAsync(idUsuario);
 
                 if (usuarioActual == null)
@@ -135,11 +139,12 @@ namespace ApiBeeyondScreen.Controllers
         // GET: api/Usuarios/Boletos
         [Authorize]
         [HttpGet("Boletos")]
-        public async Task<ActionResult<IEnumerable<ViewFacturaBoleto>>> GetBoletosUser()
+        public async Task<ActionResult<List<ViewFacturaBoleto>>> GetBoletosUser()
         {
             try
             {
-                int idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+                Usuario usuario = this.helperUsuario.GetUsuario();
+                int idUsuario = usuario.IdUsuario;
                 List<ViewFacturaBoleto> viewFacturaBoletos = await this.repo.GetFacturasBoletoUserAsync(idUsuario);
                 return Ok(viewFacturaBoletos);
             }

@@ -26,9 +26,9 @@ namespace ApiBeeyondScreen.Helpers
 
         public static string DecryptString(String dato)
         {
-            var saltconf = configuration.GetValue<string>("Crypto:Salt");
-            var bucleconf = configuration.GetValue<string>("Crypto:Iterate");
-            string password = configuration.GetValue<string>("Crypto:Key");
+            var saltconf = HelperSeguridad.Salt;
+            var bucleconf = HelperSeguridad.Iterate;
+            string password = HelperSeguridad.Key;
             byte[] saltpassword = EncriptarPasswordSalt
                 (password, saltconf, int.Parse(bucleconf));
             String res = DecryptString(saltpassword, dato);

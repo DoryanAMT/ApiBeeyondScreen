@@ -9,9 +9,9 @@ namespace ApiBeeyondScreen.Controllers
     [ApiController]
     public class HorarioPeliculasController : ControllerBase
     {
-        private readonly RepositoryCine repo;
+        private IRepositoryCine repo;
 
-        public HorarioPeliculasController(RepositoryCine repo)
+        public HorarioPeliculasController(IRepositoryCine repo)
         {
             this.repo = repo;
         }

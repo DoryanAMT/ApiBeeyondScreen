@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(helper.GetAuthenticateSchema())
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddTransient<IRepositoryCine, RepositoryCine>();
+builder.Services.AddTransient<HelperUsuarioToken>();
 builder.Services.AddDbContext<CineContext>
     (options => options.UseSqlServer(connectionString));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
