@@ -1,6 +1,7 @@
 ﻿using BeeyondScreen.Data;
 using NugetBeeyondScreen.DTOs;
 using NugetBeeyondScreen.Helpers;
+using ApiBeeyondScreen.Helpers;
 using NugetBeeyondScreen.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -466,7 +467,7 @@ namespace ApiBeeyondScreen.Repositories
                 usuario.Email = email;
                 usuario.Imagen = imagen;
                 // Actualizar la contraseña
-                usuario.Pass = HelperCriptography.EncryptPassword(password, usuario.Salt);
+                usuario.Pass = NugetBeeyondScreen.Helpers.HelperCryptography.EncryptPassword(password, usuario.Salt);
                 await this.context.SaveChangesAsync();
             }
         }
@@ -480,8 +481,8 @@ namespace ApiBeeyondScreen.Repositories
             usuario.Nombre = nombre;
             usuario.Email = email;
             usuario.Imagen = imagen;
-            usuario.Salt = HelperCriptography.GenerateSalt();
-            usuario.Pass = HelperCriptography.EncryptPassword(password, usuario.Salt);
+            usuario.Salt = NugetBeeyondScreen.Helpers.HelperCryptography.GenerateSalt();
+            usuario.Pass = NugetBeeyondScreen.Helpers.HelperCryptography.EncryptPassword(password, usuario.Salt);
             usuario.FechaCreacion = DateTime.Now;
             this.context.Usuarios.Add(usuario);
             await this.context.SaveChangesAsync();
@@ -500,9 +501,9 @@ namespace ApiBeeyondScreen.Repositories
             else
             {
                 string salt = usuario.Salt;
-                byte[] temp = HelperCriptography.EncryptPassword(password, salt);
+                byte[] temp = NugetBeeyondScreen.Helpers.HelperCryptography.EncryptPassword(password, salt);
                 byte[] passBytes = usuario.Pass;
-                bool response = HelperCriptography.CompararArrays(temp, passBytes);
+                bool response = NugetBeeyondScreen.Helpers.HelperCryptography.CompararArrays(temp, passBytes);
                 if (response == true)
                 {
 

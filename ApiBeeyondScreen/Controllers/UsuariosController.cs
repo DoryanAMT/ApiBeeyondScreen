@@ -1,5 +1,4 @@
 ﻿using ApiBeeyondScreen.Helpers;
-using ApiBeeyondScreen.Models;
 using ApiBeeyondScreen.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -80,8 +79,8 @@ namespace ApiBeeyondScreen.Controllers
                 if (cambiarPassword)
                 {
                     // Verificar la contraseña actual
-                    byte[] passActual = HelperCriptography.EncryptPassword(currentPassword, usuarioActual.Salt);
-                    bool passCorrecta = HelperCriptography.CompararArrays(passActual, usuarioActual.Pass);
+                    byte[] passActual = NugetBeeyondScreen.Helpers.HelperCryptography.EncryptPassword(currentPassword, usuarioActual.Salt);
+                    bool passCorrecta = NugetBeeyondScreen.Helpers.HelperCryptography.CompararArrays(passActual, usuarioActual.Pass);
                     if (!passCorrecta)
                     {
                         return BadRequest(new { error = "La contraseña actual es incorrecta" });
