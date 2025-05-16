@@ -1,4 +1,5 @@
 ﻿using ApiBeeyondScreen.Helpers;
+using ApiBeeyondScreen.Models;
 using ApiBeeyondScreen.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -62,7 +63,7 @@ namespace ApiBeeyondScreen.Controllers
         // PUT: api/Usuarios/Perfil
         [Authorize]
         [HttpPut("Perfil")]
-        public async Task<ActionResult> UpdatePerfil(UsuarioModel usuario, string currentPassword, string newPassword, string confirmPassword, bool cambiarPassword)
+        public async Task<ActionResult> UpdatePerfil(UsuarioModel usuario, string? currentPassword, string? newPassword, string? confirmPassword, bool? cambiarPassword)
         {
             try
             {
@@ -76,7 +77,7 @@ namespace ApiBeeyondScreen.Controllers
                 }
 
                 // Si se solicitó cambiar la contraseña
-                if (cambiarPassword)
+                if (cambiarPassword.Value != null)
                 {
                     // Verificar la contraseña actual
                     byte[] passActual = NugetBeeyondScreen.Helpers.HelperCryptography.EncryptPassword(currentPassword, usuarioActual.Salt);
@@ -122,11 +123,11 @@ namespace ApiBeeyondScreen.Controllers
 
         // POST: api/Usuarios/Register
         [HttpPost("Register")]
-        public async Task<ActionResult> Register(string nombre, string email, string imagen, string password)
+        public async Task<ActionResult> Register(RegisterDTO usuario)
         {
             try
             {
-                await this.repo.RegisterUserAsync(nombre, email, password, imagen);
+                await this.repo.RegisterUserAsync(usuario.Nombre, usuario.Email, usuario.Password, usuario.Imagen);
                 return CreatedAtAction(nameof(GetUsuarios), new { mensaje = "Usuario registrado correctamente" });
             }
             catch (Exception ex)
