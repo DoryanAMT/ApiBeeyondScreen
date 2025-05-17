@@ -95,6 +95,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // GET: api/Asientos/Reserva/5
+        [Authorize]
         [HttpGet("Reserva/{idHorario}")]
         public async Task<ActionResult<ModelAsientosReserva>> GetAsientosReserva(int idHorario)
         {
@@ -109,14 +110,10 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // POST: api/Asientos/Reserva
+        [Authorize]
         [HttpPost("Reserva")]
-        public async Task<ActionResult> CreateAsientoReserva(Asiento asiento)
+        public async Task<ActionResult> CreateAsientoReserva(int usuarioId, Asiento asiento)
         {
-            // Validar que el usuario esté autenticado
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
 
             int idAsiento = await this.repo.GetLastIdAsientoAsync();
             await this.repo.InsertAsientoAsync(
@@ -127,12 +124,6 @@ namespace ApiBeeyondScreen.Controllers
                 asiento.Fila,
                 asiento.Disponible
             );
-
-            // Obtener el ID del usuario actual
-            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int usuarioId))
-            {
-                return BadRequest("No se pudo identificar al usuario");
-            }
 
             int idBoleto = await this.repo.GetLastIdBoletoAsync();
             await this.repo.InsertBoletoAsync(

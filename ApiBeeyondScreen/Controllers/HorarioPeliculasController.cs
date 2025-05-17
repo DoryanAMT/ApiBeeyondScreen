@@ -1,4 +1,6 @@
-﻿using ApiBeeyondScreen.Repositories;
+﻿using ApiBeeyondScreen.Models;
+using ApiBeeyondScreen.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NugetBeeyondScreen.Models;
@@ -39,23 +41,25 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // GET: api/HorarioPeliculas/Opciones
+        [Authorize]
         [HttpGet("Opciones")]
         public async Task<ActionResult> GetOpciones()
         {
-            int idCine = 762509; // Este valor deberá obtenerse de otra forma en producción
+            int idCine = 1;
 
-            var result = new
+            OpcionesDTO opciones = new OpcionesDTO
             {
                 Peliculas = await repo.GetComboPeliculasAsync(),
                 Salas = await repo.GetComboSalasAsync(idCine),
                 Versiones = await repo.GetComboVersionesAsync(),
-                CalendarioHorarios = await repo.GetCalendarioHorarioPeliculasAsync()
+                Eventos = await repo.GetCalendarioHorarioPeliculasAsync()
             };
 
-            return Ok(result);
+            return Ok(opciones);
         }
 
         // POST: api/HorarioPeliculas
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<HorarioPelicula>> PostHorarioPelicula(HorarioPelicula horarioPelicula)
         {
@@ -102,6 +106,7 @@ namespace ApiBeeyondScreen.Controllers
         }
 
         // DELETE: api/HorarioPeliculas/5
+        [Authorize]
         [HttpDelete("{idHorarioPelicula}")]
         public async Task<IActionResult> DeleteHorarioPelicula(int idHorarioPelicula)
         {

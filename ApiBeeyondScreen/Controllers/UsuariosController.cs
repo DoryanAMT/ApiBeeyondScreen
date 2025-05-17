@@ -143,6 +143,7 @@ namespace ApiBeeyondScreen.Controllers
         {
             try
             {
+
                 Usuario usuario = this.helperUsuario.GetUsuario();
                 int idUsuario = usuario.IdUsuario;
                 List<ViewFacturaBoleto> viewFacturaBoletos = await this.repo.GetFacturasBoletoUserAsync(idUsuario);
